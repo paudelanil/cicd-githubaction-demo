@@ -14,4 +14,4 @@ app.include_router(support.router)
 
 @app.get("/health")
 def health() -> dict[str, str]:
-    return {"status": "ok", "version": app.version}
+    return {"status": "ok", "version": app.version, "health": "ok"}
