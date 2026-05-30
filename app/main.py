@@ -5,6 +5,7 @@ the application logic is deliberately minimal and stays in-memory.
 """
 
 from fastapi import FastAPI
+import os
 
 from app.routers import support
 
