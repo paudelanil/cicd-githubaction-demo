@@ -1,0 +1,46 @@
+name: CI
+
+# Lints, format-checks, and tests the code on every push to main and every
+# PR. Each Python version in the matrix runs in parallel on its own VM.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:                            # also runnable manually from the Actions tab
+
+jobs:
+  lint-format-test:
+    runs-on: ubuntu-latest                      # fresh Ubuntu VM, one per matrix variant
+    strategy:
+      fail-fast: false                          # one failing variant doesn't stop the others
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      # Each step is either `uses:` (a packaged action from the Marketplace —
+      # someone else's pre-built logic) or `run:` (a plain shell command).
+      # `@v4` / `@v5` pin to the action's current major version. The number is
+      # per-action: each action versions independently, like Python libraries.
+
+      - uses: actions/checkout@v4               # git-clones your repo onto the (otherwise empty) runner — required for any workflow that touches your code
+
+      - uses: actions/setup-python@v5           # installs Python and configures pip wheel caching
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements.txt   # cache key — when this file changes, the cache misses and pip fetches fresh wheels
+
+      # The remaining steps use `run:` — plain shell commands executed on the runner.
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Lint with ruff
+        run: ruff check .
+
+      - name: Check formatting with ruff
+        run: ruff format --check .
+
+      - name: Run tests
+        run: pytest -q --tb=short
