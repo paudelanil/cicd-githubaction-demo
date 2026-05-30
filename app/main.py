@@ -8,7 +8,7 @@ from fastapi import FastAPI
 
 from app.routers import support
 
-app = FastAPI(title="support-api", version="0.1.0")
+app = FastAPI(title="support-api", version="0.1.1")
 app.include_router(support.router)
 
 
